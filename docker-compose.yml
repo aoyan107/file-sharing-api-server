@@ -1,0 +1,49 @@
+version: "2.0"
+
+services:
+
+  #  meldCx task configuration
+
+  meldcx-backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: meldcx-backend
+    restart: unless-stopped
+    ports:
+      - 5022:5022
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: sh -c "yarn install &&  yarn start:dev"
+
+  meldcx-db:
+    image: postgres:14
+    container_name: meldcx-db
+    restart: always
+    mem_limit: 1g
+    environment:
+      POSTGRES_PASSWORD: root123
+      POSTGRES_DB: meldCx-db
+      POSTGRES_USER: root
+    volumes:
+      - /var/lib/postgresql/meldcx/data:/var/lib/postgresql/data
+
+  meldcx-db-adminer:
+    image: adminer
+    container_name: meldcx-db-adminer
+    restart: unless-stopped
+    links:
+      - meldcx-db:db
+    ports:
+      - 9882:8080
+  
+  meldcx-redis:
+    image: redis:6.2
+    container_name: meldcx-redis
+    restart: unless-stopped
+    volumes:
+        -  /var/lib/redis/meldcx/data:/data
+
+# End of meldcx task configuration
+
